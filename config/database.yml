@@ -1,0 +1,5 @@
+development:
+  adapter: postgresql
+  database: twitter_client_dev
+  pool: 5
+  timeout: 5000

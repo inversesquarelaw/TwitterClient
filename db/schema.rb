@@ -37,12 +37,12 @@ ActiveRecord::Schema.define(:version => 20130808205336) do
 
   create_table "users", :id => false, :force => true do |t|
     t.string   "twitter_user_id", :null => false
-    t.string   "username",        :null => false
+    t.string   "screen_name",     :null => false
     t.datetime "created_at",      :null => false
     t.datetime "updated_at",      :null => false
   end
 
+  add_index "users", ["screen_name"], :name => "index_users_on_screen_name", :unique => true
   add_index "users", ["twitter_user_id"], :name => "index_users_on_twitter_user_id", :unique => true
-  add_index "users", ["username"], :name => "index_users_on_username", :unique => true
 
 end

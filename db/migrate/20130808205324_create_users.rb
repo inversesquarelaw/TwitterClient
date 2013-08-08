@@ -8,6 +8,6 @@ class CreateUsers < ActiveRecord::Migration
     end
 
     add_index :users, :twitter_user_id, :unique => true
-    add_index :users, :username, :unique => true
+    add_index :users, :screen_name, :unique => true
   end
 end

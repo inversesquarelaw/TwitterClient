@@ -30,24 +30,24 @@ class TwitterSession
 
   # helpers to help me get/pos more easily than using the access token
   # directly.
-  def get(path, query_values = nil)
+  def self.get(path, query_values = nil)
     url = path_to_url(path, query_values)
-    access_token.get(url)
+    JSON.parse(self.instance.access_token.get(url).body)
   end
 
-  def post(path, req_params = nil)
+  def self.post(path, req_params = nil)
     url = path_to_url(path)
-    access_token.post(path, req_params)
+    JSON.parse(self.instance.access_token.post(path, req_params).body)
   end
 
   # Helper so I don't need to repeat `"https://api.twitter.com/"`
   # everywhere.
   private
-  def path_to_url(path, query_values = nil)
+  def self.path_to_url(path, query_values = nil)
     Addressable::URI.new(
       :scheme => "https",
       :host => "api.twitter.com",
-      :path => path,
+      :path => "/1.1/#{path}.json",
       :query_values => query_values
     ).to_s
   end

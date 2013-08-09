@@ -22,7 +22,7 @@ class Status < ActiveRecord::Base
     Status.new(
       :body => twitter_status_params["text"],
       :twitter_status_id => twitter_status_params["id_str"],
-      :twitter_user_id => twitter_status_params["user"]
+      :twitter_user_id => twitter_status_params["user"]["id_str"]
     )
   end
 end

@@ -46,10 +46,30 @@ class User < ActiveRecord::Base
     :presence => true
   )
 
+  def self.fetch_by_screen_name(screen_name)
+    params = TwitterSession.get(
+      "users/show",
+      { :screen_name => screen_name }
+    )
+
+    self.parse_twitter_user(params)
+  end
+
   def self.parse_twitter_user(twitter_user_params)
     User.new(
       :screen_name => twitter_user_params["screen_name"],
       :twitter_user_id => twitter_user_params["id_str"]
     )
+  end
+
+  def fetch_statuses
+    params = TwitterSession.get(
+      "statuses/user_timeline",
+      { :user_id => twitter_user_id }
+    )
+
+    params.map do |twitter_status_params|
+      Status.parse_twitter_status(twitter_status_params)
+    end
   end
 end

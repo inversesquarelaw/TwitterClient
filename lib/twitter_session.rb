@@ -37,7 +37,7 @@ class TwitterSession
 
   def self.post(path, req_params = nil)
     url = path_to_url(path)
-    JSON.parse(self.instance.access_token.post(path, req_params).body)
+    JSON.parse(self.instance.access_token.post(url, req_params).body)
   end
 
   # Helper so I don't need to repeat `"https://api.twitter.com/"`

@@ -1,6 +1,6 @@
 class CreateStatuses < ActiveRecord::Migration
   def change
-    create_table :statuses, :id => false do |t|
+    create_table :statuses do |t|
       t.text :body, :null => false
       t.string :twitter_status_id, :null => false
       t.string :twitter_user_id, :null => false

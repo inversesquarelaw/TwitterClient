@@ -6,13 +6,15 @@ class Follow < ActiveRecord::Base
 
   belongs_to(
     :followee,
-    :foreign_key => :twitter_user_id,
+    :class_name => "User",
+    :foreign_key => :twitter_followee_id,
     :primary_key => :twitter_user_id
   )
 
   belongs_to(
     :follower,
-    :foreign_key => :twitter_user_id,
+    :class_name => "User",
+    :foreign_key => :twitter_follower_id,
     :primary_key => :twitter_user_id
   )
 

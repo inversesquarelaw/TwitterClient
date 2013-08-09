@@ -24,7 +24,7 @@ ActiveRecord::Schema.define(:version => 20130808205336) do
   add_index "follows", ["twitter_followee_id"], :name => "index_follows_on_twitter_followee_id"
   add_index "follows", ["twitter_follower_id"], :name => "index_follows_on_twitter_follower_id"
 
-  create_table "statuses", :id => false, :force => true do |t|
+  create_table "statuses", :force => true do |t|
     t.text     "body",              :null => false
     t.string   "twitter_status_id", :null => false
     t.string   "twitter_user_id",   :null => false

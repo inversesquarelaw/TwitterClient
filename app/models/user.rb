@@ -42,7 +42,7 @@ class User < ActiveRecord::Base
 
   validates(
     :twitter_user_id,
-    :username,
+    :screen_name,
     :presence => true
   )
 
@@ -71,5 +71,16 @@ class User < ActiveRecord::Base
     params.map do |twitter_status_params|
       Status.parse_twitter_status(twitter_status_params)
     end
+  end
+
+  def sync_statuses
+    old_status_ids = self.statuses.pluck("twitter_status_id")
+
+    new_statuses = self.fetch_statuses
+    new_statuses.reject! do |new_status|
+      old_status_ids.include?(new_status.twitter_status_id)
+    end
+
+    new_statuses.each { |new_status| new_status.save! }
   end
 end

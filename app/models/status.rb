@@ -1,3 +1,5 @@
+require 'twitter_session'
+
 class Status < ActiveRecord::Base
   attr_accessible(
     :body,
@@ -50,5 +52,14 @@ class Status < ActiveRecord::Base
       :twitter_status_id => twitter_status_params["id_str"],
       :twitter_user_id => twitter_status_params["user"]["id_str"]
     )
+  end
+
+  def self.post(body)
+    status_params = TwitterSession.post(
+      "statuses/update",
+      { :status => body }
+    )
+
+    Status.parse_twitter_status(status_params).save!
   end
 end

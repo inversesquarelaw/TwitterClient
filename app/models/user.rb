@@ -53,11 +53,13 @@ class User < ActiveRecord::Base
     new_ids = ids.reject { |id| existing_ids.include?(id) }
 
     # twitter won't let you look up >100 users at a time; we would probably
-    # want to make multiple queries, but I'm lazy.
-    new_users_params = []
+    # should break this up and make multiple queries, but I'm lazy.
     raise "hell" if new_ids.length > 100
 
+    new_users_params = []
     unless new_ids.empty?
+      # this is an abuse of POST, but query string length is limited, so
+      # looking up many ids is accomplished through a POST body.
       new_users_params = TwitterSession.post(
         "users/lookup",
         :user_id => new_ids.join(",")

@@ -9,7 +9,8 @@ class TwitterSession
   CONSUMER_SECRET = "6GYfnUaDGanrabJL4kcM1Z9nBGTtQFYfXYNny110q0"
 
   CONSUMER = OAuth::Consumer.new(
-    CONSUMER_KEY, CONSUMER_SECRET, :site => "https://twitter.com")
+    CONSUMER_KEY, CONSUMER_SECRET, :site => "https://twitter.com"
+  )
 
   TOKEN_FILE_NAME = "twitter_token_file"
 
@@ -28,7 +29,7 @@ class TwitterSession
 
   attr_reader :access_token
 
-  # helpers to help me get/pos more easily than using the access token
+  # helpers to help me get/post more easily than using the access token
   # directly.
   def self.get(path, query_values = nil)
     url = path_to_url(path, query_values)

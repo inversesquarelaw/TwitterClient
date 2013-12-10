@@ -39,14 +39,14 @@ class Status < ActiveRecord::Base
       old_statuses_ids.include?(status_params["id_str"])
     end
     new_statuses = new_statuses_params.map do |status_params|
-      Status.parse_twitter_status(status_params)
+      Status.parse_json(status_params)
     end
 
     old_statuses + new_statuses
   end
 
 
-  def self.parse_twitter_status(twitter_status_params)
+  def self.parse_json(twitter_status_params)
     Status.new(
       :body => twitter_status_params["text"],
       :twitter_status_id => twitter_status_params["id_str"],
@@ -60,6 +60,6 @@ class Status < ActiveRecord::Base
       { :status => body }
     )
 
-    Status.parse_twitter_status(status_params).save!
+    Status.parse_json(status_params).save!
   end
 end

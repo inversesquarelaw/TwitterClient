@@ -21,7 +21,9 @@ class TwitterSession
       @access_token = File.open(TOKEN_FILE_NAME) { |f| YAML.load(f) }
     else
       @access_token = request_access_token
-      File.open(TOKEN_FILE_NAME, "w") { |f| YAML.dump(access_token, f) }
+      File.open(TOKEN_FILE_NAME, "w") do |f|
+        YAML.dump(access_token, f)
+      end
 
       access_token
     end
@@ -29,8 +31,8 @@ class TwitterSession
 
   attr_reader :access_token
 
-  # helpers to help me get/post more easily than using the access token
-  # directly.
+  # helpers to help me get/post more easily than using the access
+  # token directly.
   def self.get(path, query_values = nil)
     url = path_to_url(path, query_values)
     JSON.parse(self.instance.access_token.get(url).body)

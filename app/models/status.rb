@@ -1,4 +1,14 @@
 require 'twitter_session'
+require 'open-uri'
+
+def internet_connection?
+  begin
+    true if open("http://www.google.com/")
+  rescue => e
+    puts e
+    false
+  end
+end
 
 class Status < ActiveRecord::Base
   attr_accessible(
@@ -20,31 +30,40 @@ class Status < ActiveRecord::Base
     :presence => true
   )
 
-  def self.fetch_statuses_for_user(user)
-    statuses_params = TwitterSession.get(
+  validates :twitter_status_id, :uniqueness => true
+
+  def self.fetch_by_twitter_user_id(twitter_user_id)
+    fetched_statuses_params = TwitterSession.get(
       "statuses/user_timeline",
-      { :user_id => user.twitter_user_id }
+      { :user_id => twitter_user_id }
     )
-    statuses_ids = statuses_params.map do |status_params|
-      status_params["id_str"]
+
+    fetched_statuses = fetched_statuses_params.map do |status_params|
+      parse_json(status_params)
     end
 
-    old_statuses = Status.where(
-      "twitter_status_id IN (?)",
-      statuses_ids
-    )
-    old_statuses_ids = old_statuses.map(&:twitter_status_id)
+    old_ids = Status
+      .where(:twitter_user_id => twitter_user_id)
+      .pluck(:twitter_status_id)
 
-    new_statuses_params = statuses_params.reject do |status_params|
-      old_statuses_ids.include?(status_params["id_str"])
-    end
-    new_statuses = new_statuses_params.map do |status_params|
-      Status.parse_json(status_params)
+    new_statuses = []
+    fetched_statuses.each do |status|
+      next if old_ids.include?(status.twitter_status_id)
+
+      status.save!
+      new_statuses << status
     end
 
-    old_statuses + new_statuses
+    new_statuses
   end
 
+  def self.get_by_twitter_user_id(twitter_user_id)
+    if internet_connection?
+      fetch_by_twitter_user_id(twitter_user_id)
+    else
+      where(:twitter_user_id => twitter_user_id)
+    end
+  end
 
   def self.parse_json(twitter_status_params)
     Status.new(

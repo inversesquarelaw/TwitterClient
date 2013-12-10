@@ -16,20 +16,11 @@ class TwitterSession
 
   include Singleton
 
-  def initialize
-    if File.exist?(TOKEN_FILE_NAME)
-      @access_token = File.open(TOKEN_FILE_NAME) { |f| YAML.load(f) }
-    else
-      @access_token = request_access_token
-      File.open(TOKEN_FILE_NAME, "w") do |f|
-        YAML.dump(access_token, f)
-      end
-
-      access_token
-    end
-  end
-
   attr_reader :access_token
+
+  def initialize
+    get_token
+  end
 
   # helpers to help me get/post more easily than using the access
   # token directly.
@@ -53,6 +44,19 @@ class TwitterSession
       :path => "/1.1/#{path}.json",
       :query_values => query_values
     ).to_s
+  end
+
+  def get_token
+    if File.exist?(TOKEN_FILE_NAME)
+      @access_token = File.open(TOKEN_FILE_NAME) { |f| YAML.load(f) }
+    else
+      @access_token = request_access_token
+      File.open(TOKEN_FILE_NAME, "w") do |f|
+        YAML.dump(access_token, f)
+      end
+
+      access_token
+    end
   end
 
   def request_access_token

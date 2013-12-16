@@ -60,9 +60,9 @@ class Status < ActiveRecord::Base
   def self.get_by_twitter_user_id(twitter_user_id)
     if internet_connection?
       fetch_by_twitter_user_id(twitter_user_id)
-    else
-      where(:twitter_user_id => twitter_user_id)
     end
+
+    where(:twitter_user_id => twitter_user_id)
   end
 
   def self.parse_json(twitter_status_params)

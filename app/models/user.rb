@@ -25,7 +25,10 @@ class User < ActiveRecord::Base
       { :screen_name => screen_name }
     )
 
-    self.parse_twitter_user(params).save!
+    user = self.parse_twitter_user(params)
+    user.save!
+
+    user
   end
 
   def self.get_by_screen_name(screen_name)
@@ -46,7 +49,7 @@ class User < ActiveRecord::Base
   end
 
   def fetch_statuses!
-    Status.fetch_by_twitter_id!(self.twitter_user_id)
+    Status.fetch_by_twitter_user_id!(self.twitter_user_id)
   end
 end
 

@@ -1,5 +1,6 @@
 require 'twitter_session'
 
+# Phase III
 class User < ActiveRecord::Base
   attr_accessible(
     :twitter_user_id,
@@ -12,6 +13,41 @@ class User < ActiveRecord::Base
     :primary_key => :twitter_user_id
   )
 
+  validates(
+    :twitter_user_id,
+    :screen_name,
+    :presence => true
+  )
+
+  def self.fetch_by_screen_name(screen_name)
+    params = TwitterSession.get(
+      "users/show",
+      { :screen_name => screen_name }
+    )
+
+    self.parse_twitter_user(params).save!
+  end
+
+  def self.get_by_screen_name(screen_name)
+    user = User.find_by_screen_name(screen_name)
+
+    if user.nil?
+      user = User.fetch_by_screen_name(screen_name)
+    end
+
+    user
+  end
+
+  def self.parse_twitter_user(twitter_user_params)
+    User.new(
+      :screen_name => twitter_user_params["screen_name"],
+      :twitter_user_id => twitter_user_params["id_str"]
+    )
+  end
+end
+
+# TODO: rewrite this for Phase IV
+class User < ActiveRecord::Base
   has_many(
     :inbound_follows,
     :class_name => "Follow",
@@ -38,12 +74,6 @@ class User < ActiveRecord::Base
     :class_name => "User",
     :through => :outbound_follows,
     :source => :followee
-  )
-
-  validates(
-    :twitter_user_id,
-    :screen_name,
-    :presence => true
   )
 
   def self.fetch_by_ids(ids)
@@ -73,31 +103,6 @@ class User < ActiveRecord::Base
     existing_users + new_users
   end
 
-  def self.fetch_by_screen_name(screen_name)
-    params = TwitterSession.get(
-      "users/show",
-      { :screen_name => screen_name }
-    )
-
-    self.parse_twitter_user(params)
-  end
-
-  def self.parse_twitter_user(twitter_user_params)
-    User.new(
-      :screen_name => twitter_user_params["screen_name"],
-      :twitter_user_id => twitter_user_params["id_str"]
-    )
-  end
-
-  def fetch_followers
-    follower_ids = TwitterSession.get(
-      "followers/ids",
-      { :user_id => self.twitter_user_id, :stringify_ids => true }
-    )["ids"]
-
-    User.fetch_by_ids(follower_ids)
-  end
-
   def sync_followers
     fetched_followers = self.fetch_followers
     fetched_followers.each do |fetched_follower|
@@ -109,10 +114,12 @@ class User < ActiveRecord::Base
     nil
   end
 
-  def sync_statuses
-    statuses = Status.fetch_statuses_for_user(self)
-    statuses.each { |status| status.save! unless status.persisted? }
+  def fetch_followers
+    follower_ids = TwitterSession.get(
+      "followers/ids",
+      { :user_id => self.twitter_user_id, :stringify_ids => true }
+    )["ids"]
 
-    nil
+    User.fetch_by_ids(follower_ids)
   end
 end

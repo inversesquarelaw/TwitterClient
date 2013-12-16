@@ -32,7 +32,7 @@ class Status < ActiveRecord::Base
 
   validates :twitter_status_id, :uniqueness => true
 
-  def self.fetch_by_twitter_user_id(twitter_user_id)
+  def self.fetch_by_twitter_user_id!(twitter_user_id)
     fetched_statuses_params = TwitterSession.get(
       "statuses/user_timeline",
       { :user_id => twitter_user_id }
@@ -59,7 +59,7 @@ class Status < ActiveRecord::Base
 
   def self.get_by_twitter_user_id(twitter_user_id)
     if internet_connection?
-      fetch_by_twitter_user_id(twitter_user_id)
+      fetch_by_twitter_user_id!(twitter_user_id)
     end
 
     where(:twitter_user_id => twitter_user_id)

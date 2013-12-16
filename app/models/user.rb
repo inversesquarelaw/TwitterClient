@@ -19,7 +19,7 @@ class User < ActiveRecord::Base
     :presence => true
   )
 
-  def self.fetch_by_screen_name(screen_name)
+  def self.fetch_by_screen_name!(screen_name)
     params = TwitterSession.get(
       "users/show",
       { :screen_name => screen_name }
@@ -32,7 +32,7 @@ class User < ActiveRecord::Base
     user = User.find_by_screen_name(screen_name)
 
     if user.nil?
-      user = User.fetch_by_screen_name(screen_name)
+      user = User.fetch_by_screen_name!(screen_name)
     end
 
     user
@@ -43,6 +43,10 @@ class User < ActiveRecord::Base
       :screen_name => twitter_user_params["screen_name"],
       :twitter_user_id => twitter_user_params["id_str"]
     )
+  end
+
+  def fetch_statuses!
+    Status.fetch_by_twitter_id!(self.twitter_user_id)
   end
 end
 

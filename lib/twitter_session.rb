@@ -1,7 +1,6 @@
 require 'json'
 require 'launchy'
 require 'oauth'
-require 'singleton'
 require 'yaml'
 
 class TwitterSession
@@ -14,29 +13,18 @@ class TwitterSession
 
   TOKEN_FILE_NAME = "twitter_token_file"
 
-  include Singleton
-
-  attr_reader :access_token
-
-  def initialize
-    get_token
-  end
-
-  # helpers to help me get/post more easily than using the access
-  # token directly.
   def self.get(path, query_values = nil)
     url = path_to_url(path, query_values)
-    JSON.parse(self.instance.access_token.get(url).body)
+    JSON.parse(self.access_token.get(url).body)
   end
 
-  def self.post(path, req_params = nil)
+  def self.post(path, payload = nil)
     url = path_to_url(path)
-    JSON.parse(self.instance.access_token.post(url, req_params).body)
+    JSON.parse(self.access_token.post(url, payload).body)
   end
 
   # Helper so I don't need to repeat `"https://api.twitter.com/"`
   # everywhere.
-  private
   def self.path_to_url(path, query_values = nil)
     Addressable::URI.new(
       :scheme => "https",
@@ -46,20 +34,22 @@ class TwitterSession
     ).to_s
   end
 
-  def get_token
+  def self.access_token
+    return @access_token unless @access_token.nil?
+
     if File.exist?(TOKEN_FILE_NAME)
       @access_token = File.open(TOKEN_FILE_NAME) { |f| YAML.load(f) }
     else
       @access_token = request_access_token
       File.open(TOKEN_FILE_NAME, "w") do |f|
-        YAML.dump(access_token, f)
+        YAML.dump(@access_token, f)
       end
 
       access_token
     end
   end
 
-  def request_access_token
+  def self.request_access_token
     # This is the bit that makes the user actually go through the
     # auth flow.
 

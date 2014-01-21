@@ -64,7 +64,6 @@ class User < ActiveRecord::Base
 
   has_many(
     :followers,
-    :class_name => "User",
     :through => :inbound_follows,
     :source => :follower
   )
@@ -78,7 +77,6 @@ class User < ActiveRecord::Base
 
   has_many(
     :followed_users,
-    :class_name => "User",
     :through => :outbound_follows,
     :source => :followee
   )

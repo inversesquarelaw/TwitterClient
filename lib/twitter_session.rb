@@ -45,7 +45,7 @@ class TwitterSession
         YAML.dump(@access_token, f)
       end
 
-      access_token
+      @access_token
     end
   end
 
